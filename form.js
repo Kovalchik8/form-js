@@ -1,5 +1,5 @@
 // form.js
-// version 1.0.4
+// version 1.0.5
 // jQuery library for relaxed dealing with HTML forms
 // author - https://kovalchik.com.ua
 // how to use -
