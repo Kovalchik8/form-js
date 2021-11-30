@@ -1,5 +1,5 @@
 // form.js
-// version 1.0.0
+// version 1.0.4
 // jQuery library for relaxed dealing with HTML forms
 // author - https://kovalchik.com.ua
 // how to use -
@@ -58,6 +58,7 @@ class Form {
   // send form with ajax
   sendAjax() {
     if (this.test_mode) console.log(this.ajax_data)
+    this.form.trigger('before_ajax', this.ajax_data)
 
     this.loading_target.addClass('loading')
 
@@ -77,6 +78,7 @@ class Form {
       })
       .always(() => {
         this.loading_target.removeClass('loading')
+        this.form.trigger('after_ajax')
       })
   }
 
@@ -87,7 +89,7 @@ class Form {
     this.form_fields = []
     this.form
       .find(
-        'input:not([type=submit]):not([type=checkbox]):not([type=radio]), input:checked, select, textarea'
+        'input:not([type=submit]):not([type=checkbox]):not([type=radio]), input:checked, select, textarea, input[required]'
       )
       .each(function() {
         self.collectField($(this))
@@ -109,6 +111,9 @@ class Form {
     if (input.value.length && this.validators[input.type])
       if (input.value.match(this.validators[input.type]) == null)
         input.valid = false
+
+    if (input.type == 'checkbox' && input.required && !input.obj.is(':checked'))
+      input.valid = false
   }
 
   // collect form field data
@@ -117,8 +122,8 @@ class Form {
       field_id = field.attr('id'),
       subject =
         this.form.find(`[data-subject-for=${field_name}]`).text() ||
-        field.attr('placeholder') ||
         this.form.find(`label[for=${field_id}]`).text() ||
+        field.attr('placeholder') ||
         field.attr('name')
 
     if (!field_name) this.onError(`Some fields don't have attribute [name]`)
