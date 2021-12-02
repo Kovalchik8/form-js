@@ -1,5 +1,5 @@
 // form.js
-// version 1.0.5
+// version 1.0.6
 // jQuery library for relaxed dealing with HTML forms
 // author - https://kovalchik.com.ua
 // how to use -
@@ -108,11 +108,26 @@ class Form {
 
   // field validation
   validateInput(input) {
-    if (input.value.length && this.validators[input.type])
-      if (input.value.match(this.validators[input.type]) == null)
+    if (
+      input.value.length &&
+      (this.validators[input.type] || this.validators[input.name])
+    )
+      if (
+        this.validators[input.type] &&
+        input.value.match(this.validators[input.type]) == null
+      )
         input.valid = false
 
+    if (
+      this.validators[input.name] &&
+      input.value.match(this.validators[input.name]) == null
+    )
+      input.valid = false
+
     if (input.type == 'checkbox' && input.required && !input.obj.is(':checked'))
+      input.valid = false
+
+    if (input.type == 'radio' && input.required && !input.obj.is(':checked'))
       input.valid = false
   }
 
@@ -129,6 +144,7 @@ class Form {
     if (!field_name) this.onError(`Some fields don't have attribute [name]`)
 
     let field_data = {
+      name: field_name,
       obj: field,
       value: field.val(),
       type: field.attr('type'),
